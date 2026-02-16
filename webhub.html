@@ -12,7 +12,7 @@
   <body>
     <header class="header" id="top">
       <div class="logo-group">
-        <div class="logo-dot" aria-hidden="true"></div>
+        <img class="logo-image" data-brand-logo alt="Logo WebHub" />
         <span class="logo-text">WebHub</span>
       </div>
 
@@ -27,7 +27,9 @@
       <nav class="nav" id="mainNav">
         <button class="nav-link active" data-view="home">Inicio</button>
         <button class="nav-link" data-view="explore">Explorar</button>
+        <button class="nav-link" data-view="feed">Feed</button>
         <button class="nav-link" data-view="dashboard" id="dashboardNavBtn">Dashboard</button>
+        <button class="btn ghost" id="themeToggleBtn" type="button" aria-label="Cambiar tema">🌙 Oscuro</button>
         <button class="btn ghost hidden" id="notificationsBtn">Notificaciones <span id="notificationsCount" class="count-badge">0</span></button>
         <button class="btn ghost" id="loginBtn">Iniciar sesión</button>
         <button class="btn primary" id="registerBtn">Registrarse</button>
@@ -132,6 +134,14 @@
                 <datalist id="suggestions"></datalist>
               </div>
               <div class="field">
+                <label for="exploreTarget">Tipo de búsqueda</label>
+                <select id="exploreTarget">
+                  <option value="all">Empresas + desarrolladores</option>
+                  <option value="developers">Solo desarrolladores</option>
+                  <option value="companies">Solo empresas</option>
+                </select>
+              </div>
+              <div class="field">
                 <label for="expLevel">Experiencia</label>
                 <select id="expLevel">
                   <option value="">Cualquiera</option>
@@ -188,7 +198,11 @@
             </div>
           </div>
 
-          <div class="grid cols-2">
+          <div class="grid cols-3 explore-panels">
+            <article class="card">
+              <h3>Empresas</h3>
+              <div id="exploreCompanies"></div>
+            </article>
             <article class="card">
               <h3>Desarrolladores</h3>
               <div id="exploreDevelopers"></div>
@@ -198,6 +212,83 @@
               <div id="exploreProjects"></div>
             </article>
           </div>
+
+        </section>
+      </section>
+
+      <section class="view" id="view-feed">
+        <section class="container section">
+          <div class="section-head">
+            <h2>Feed multimedia</h2>
+            <p class="muted">Publicaciones verticales de opiniones, mensajes y experiencias.</p>
+          </div>
+
+          <div class="card filter-card">
+            <h3>Filtrar publicaciones</h3>
+            <div class="grid cols-4">
+              <div class="field cols-span-2">
+                <label for="feedQuery">Buscar en feed</label>
+                <input id="feedQuery" type="text" placeholder="empresa, experiencia, diseño..." />
+              </div>
+              <div class="field">
+                <label for="feedTypeFilter">Tipo</label>
+                <select id="feedTypeFilter">
+                  <option value="">Todos</option>
+                  <option value="opinion">Opinión</option>
+                  <option value="mensaje">Mensaje</option>
+                  <option value="experiencia">Experiencia</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="feedMediaFilter">Media</label>
+                <select id="feedMediaFilter">
+                  <option value="">Todas</option>
+                  <option value="image">Imagen</option>
+                  <option value="video">Video</option>
+                  <option value="none">Sin media</option>
+                </select>
+              </div>
+            </div>
+            <div class="actions-row">
+              <button class="btn primary" id="applyFeedFilters">Aplicar filtros</button>
+              <button class="btn ghost" id="clearFeedFilters">Limpiar</button>
+            </div>
+          </div>
+
+          <article class="card explore-feed-card">
+            <div class="section-head">
+              <h3>Publicar en el feed</h3>
+              <p class="muted">Comparte contenido profesional con imagen o video.</p>
+            </div>
+            <form id="explorePostForm" class="grid cols-4">
+              <div class="field">
+                <label for="postType">Tipo</label>
+                <select id="postType" name="type">
+                  <option value="opinion">Opinión</option>
+                  <option value="mensaje">Mensaje</option>
+                  <option value="experiencia">Experiencia</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="postMediaType">Formato</label>
+                <select id="postMediaType" name="mediaType">
+                  <option value="">Sin media</option>
+                  <option value="image">Imagen</option>
+                  <option value="video">Video</option>
+                </select>
+              </div>
+              <div class="field cols-span-2">
+                <label for="postMediaUrl">URL de imagen/video</label>
+                <input id="postMediaUrl" name="mediaUrl" placeholder="https://..." />
+              </div>
+              <div class="field cols-span-4">
+                <label for="postText">Publicación</label>
+                <textarea id="postText" name="text" placeholder="Comparte una opinión, mensaje o experiencia profesional" required></textarea>
+              </div>
+              <button class="btn primary" type="submit">Publicar</button>
+            </form>
+            <div id="exploreFeed" class="explore-feed"></div>
+          </article>
         </section>
       </section>
 
@@ -239,14 +330,15 @@
       <div class="container footer-grid">
         <div>
           <div class="logo-group muted-logo">
-            <div class="logo-dot" aria-hidden="true"></div>
+            <img class="logo-image" data-brand-logo alt="Logo WebHub" />
             <span class="logo-text">WebHub</span>
           </div>
           <p>Conectando empresas y talento digital con flujos claros y colaboración eficiente.</p>
         </div>
         <nav>
           <a href="#top">Inicio</a>
-          <a href="#" data-view-trigger="explore">Explorar</a>
+          <a href="#" data-view-trigger="explore">Explorar talento</a>
+          <a href="#" data-view-trigger="feed">Feed multimedia</a>
           <a href="#" data-info="contacto">Contacto</a>
           <a href="#" data-info="terminos">Términos</a>
           <a href="#" data-info="privacidad">Privacidad</a>

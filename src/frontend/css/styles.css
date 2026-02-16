@@ -1,17 +1,32 @@
 :root {
-  --bg: #f4f7ff;
+  --bg: #f5f7fb;
   --surface: #ffffff;
-  --surface-alt: #f7f9ff;
-  --text: #141b34;
+  --surface-alt: #f8fafc;
+  --text: #111827;
   --muted: #64748b;
-  --border: #dce4ff;
-  --primary: #355cff;
-  --primary-strong: #263eb9;
-  --accent: #7a4dff;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-strong: #1d4ed8;
+  --accent: #7c3aed;
   --danger: #ef4444;
   --success: #10b981;
-  --shadow-soft: 0 12px 34px rgba(40, 63, 170, 0.12);
+  --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.08);
   --radius: 16px;
+}
+
+html[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-alt: #1a1a1a;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+  --border: #2b2b2b;
+  --primary: #f59e0b;
+  --primary-strong: #ffb648;
+  --accent: #f97316;
+  --danger: #f87171;
+  --success: #34d399;
+  --shadow-soft: 0 18px 42px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -27,8 +42,9 @@ body {
 
 body {
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: radial-gradient(circle at top right, #eef1ff 0%, var(--bg) 35%, #f7f9ff 100%);
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 10%, var(--bg)) 0%, var(--bg) 38%, color-mix(in srgb, var(--surface-alt) 80%, var(--bg)) 100%);
   color: var(--text);
+  transition: background 0.28s ease, color 0.28s ease;
 }
 
 .container {
@@ -58,7 +74,7 @@ body {
   align-items: center;
   gap: 16px;
   padding: 12px 4vw;
-  background: color-mix(in srgb, #ffffff 78%, transparent);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -75,6 +91,15 @@ body {
   border-radius: 999px;
   background: linear-gradient(135deg, var(--primary), var(--accent));
   box-shadow: 0 0 0 7px rgba(53, 92, 255, 0.14);
+}
+
+.logo-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+  object-fit: cover;
 }
 
 .logo-text {
@@ -101,7 +126,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(53, 92, 255, 0.14);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .nav {
@@ -122,7 +147,7 @@ textarea:focus {
 
 .nav-link.active,
 .nav-link:hover {
-  background: #e9efff;
+  background: var(--surface-alt);
   color: var(--primary-strong);
 }
 
@@ -160,7 +185,7 @@ textarea:focus {
 .btn.primary {
   color: #fff;
   background: linear-gradient(120deg, var(--primary), var(--accent));
-  box-shadow: 0 12px 24px rgba(53, 92, 255, 0.25);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
 .btn.ghost {
@@ -304,12 +329,83 @@ progress::-webkit-progress-value {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.cols-span-2 {
+  grid-column: span 2;
+}
+
+.cols-span-4 {
+  grid-column: span 4;
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: var(--shadow-soft);
+}
+
+html[data-theme="dark"] .profile-card,
+html[data-theme="dark"] .project-card,
+html[data-theme="dark"] .request-card,
+html[data-theme="dark"] .message-preview,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .modal-card,
+html[data-theme="dark"] .hero-card,
+html[data-theme="dark"] .kpis article,
+html[data-theme="dark"] .bubble.other,
+html[data-theme="dark"] .bubble.me,
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] .logo-strip span,
+html[data-theme="dark"] .socials span {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .btn.ghost,
+html[data-theme="dark"] .tab,
+html[data-theme="dark"] .role-card,
+html[data-theme="dark"] .tech-toggle,
+html[data-theme="dark"] .chip {
+  background: var(--surface-alt);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .chip {
+  color: #ffd59b;
+  border-color: #5f3d0c;
+  background: #2a1a07;
+}
+
+html[data-theme="dark"] .nav-link.active,
+html[data-theme="dark"] .nav-link:hover,
+html[data-theme="dark"] .side-item.active,
+html[data-theme="dark"] .side-item:hover,
+html[data-theme="dark"] .tab.active,
+html[data-theme="dark"] .role-card.active,
+html[data-theme="dark"] .request-tab.active,
+html[data-theme="dark"] .project-status.active {
+  background: #2a1a07;
+  color: #ffbf66;
+  border-color: #5f3d0c;
+}
+
+html[data-theme="dark"] a {
+  color: #ffbf66;
+}
+
+html[data-theme="dark"] .footer {
+  background: #0d0d0d;
+}
+
+html[data-theme="dark"] .header-search input,
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: var(--surface-alt);
+  color: var(--text);
+  border-color: var(--border);
 }
 
 .step-card {
@@ -418,6 +514,52 @@ progress::-webkit-progress-value {
   display: flex;
   gap: 10px;
   margin-top: 10px;
+}
+
+.explore-panels {
+  align-items: start;
+}
+
+.explore-feed-card {
+  margin-top: 14px;
+}
+
+.explore-feed {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.feed-post {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+}
+
+.feed-media {
+  width: min(100%, 360px);
+  max-height: 520px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+  display: block;
+  margin: 10px 0;
+}
+
+.feed-comments {
+  border-top: 1px dashed #d9e3ff;
+  margin-top: 10px;
+  padding-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.comment-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .field {
@@ -903,6 +1045,10 @@ button:disabled {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .cols-span-4 {
+    grid-column: span 2;
+  }
+
   .dashboard {
     grid-template-columns: 1fr;
   }
@@ -945,8 +1091,19 @@ button:disabled {
 
   .cols-2,
   .cols-3,
+  .cols-span-2,
+  .cols-span-4,
   .footer-grid,
   .chat {
+    grid-template-columns: 1fr;
+  }
+
+  .cols-span-2,
+  .cols-span-4 {
+    grid-column: auto;
+  }
+
+  .comment-form {
     grid-template-columns: 1fr;
   }
 

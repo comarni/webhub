@@ -1,5 +1,6 @@
 const STORAGE_KEY = "webhub_uiux_v3";
 const SESSION_KEY = "webhub_session_v3";
+const THEME_KEY = "webhub_theme_v1";
 
 const state = {
   view: "home",
@@ -23,6 +24,8 @@ const roleMenus = {
 };
 
 const techOptions = ["html", "css", "javascript", "react", "vue", "node.js", "sql", "ux", "ui", "figma", "api rest"];
+const BRAND_LOGO_SOURCE = "src/frontend/assets/ph.htm";
+const BRAND_LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23355cff'/%3E%3Cstop offset='100%25' stop-color='%237a4dff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='120' height='120' rx='30' fill='url(%23g)'/%3E%3Cpath d='M25 36h15l13 41 14-32h14l14 32 13-41h15L102 88H88L74 58 60 88H46z' fill='white'/%3E%3C/svg%3E";
 
 function now() {
   return new Date().toISOString();
@@ -30,6 +33,92 @@ function now() {
 
 function uid(list) {
   return list.length ? Math.max(...list.map((item) => item.id)) + 1 : 1;
+}
+
+function ensureDBShape(db) {
+  db.users = db.users || [];
+  db.projects = db.projects || [];
+  db.reviews = db.reviews || [];
+  db.messages = db.messages || [];
+  db.requests = db.requests || [];
+  db.notifications = db.notifications || [];
+
+  db.users.forEach((user) => {
+    user.devProjects = user.devProjects || [];
+    user.contact = user.contact || { phone: "", website: "", linkedin: "", telegram: "" };
+    if (user.role === "developer" && !user.visibility) user.visibility = "public";
+
+    user.devProjects.forEach((project) => {
+      if (!project.visibility) project.visibility = "public";
+      project.files = project.files || [];
+      project.files.forEach((file) => {
+        if (typeof file.dataUrl !== "string") file.dataUrl = "";
+      });
+    });
+  });
+
+  db.explorePosts = db.explorePosts || [];
+  db.explorePosts.forEach((post) => {
+    post.comments = post.comments || [];
+    if (typeof post.isBot !== "boolean") post.isBot = false;
+  });
+
+  return db;
+}
+
+function applyBrandLogo() {
+  const logoNodes = Array.from(document.querySelectorAll("[data-brand-logo]"));
+  logoNodes.forEach((img) => {
+    img.src = BRAND_LOGO_FALLBACK;
+  });
+
+  fetch(BRAND_LOGO_SOURCE, { cache: "no-store" })
+    .then((response) => (response.ok ? response.text() : ""))
+    .then((html) => {
+      if (!html) return;
+      const match = html.match(/data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/);
+      const dataImage = match ? match[0] : "";
+      if (!dataImage) return;
+      logoNodes.forEach((img) => {
+        img.src = dataImage;
+      });
+    })
+    .catch(() => {
+      logoNodes.forEach((img) => {
+        img.src = BRAND_LOGO_FALLBACK;
+      });
+    });
+}
+
+function updateThemeToggleLabel(theme) {
+  const button = el("#themeToggleBtn");
+  if (!button) return;
+  button.textContent = theme === "dark" ? "☀️ Claro" : "🌙 Oscuro";
+  button.setAttribute("aria-label", theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro");
+}
+
+function resolveInitialTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === "light" || saved === "dark") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem(THEME_KEY, theme);
+  updateThemeToggleLabel(theme);
+}
+
+function initThemeToggle() {
+  const button = el("#themeToggleBtn");
+  const initial = resolveInitialTheme();
+  applyTheme(initial);
+  if (!button) return;
+
+  button.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
 }
 
 function defaultDB() {
@@ -65,9 +154,10 @@ function defaultDB() {
             name: "webhub-ui-kit",
             description: "Sistema de componentes UI para dashboard B2B.",
             repoUrl: "https://github.com/demo/webhub-ui-kit",
+            visibility: "public",
             tags: ["css", "javascript", "ui"],
             files: [
-              { name: "readme.pdf", size: 182000, type: "application/pdf", preview: "" },
+              { name: "readme.pdf", size: 182000, type: "application/pdf", preview: "", dataUrl: "" },
             ],
             createdAt: now(),
           },
@@ -220,14 +310,98 @@ function defaultDB() {
       { id: 2, quote: "Flujos de trabajo claros y talento de calidad.", author: "Product Lead · CloudAxis" },
       { id: 3, quote: "La mensajería y solicitudes aceleran todo el proceso.", author: "CEO · OrbitSoft" },
     ],
+    explorePosts: [
+      {
+        id: 1,
+        authorId: 1,
+        type: "experiencia",
+        text: "Cerramos una entrega de dashboard con métricas en tiempo real y la colaboración fue excelente.",
+        mediaType: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
+        comments: [
+          { id: 1, userId: 3, text: "Gran resultado, el equipo lo está usando ya.", createdAt: now() },
+        ],
+        createdAt: now(),
+      },
+      {
+        id: 2,
+        authorId: 3,
+        type: "opinion",
+        text: "Recomendación para empresas: definir alcance y criterios de éxito desde el primer sprint.",
+        mediaType: "video",
+        mediaUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+        comments: [],
+        createdAt: now(),
+      },
+      {
+        id: 3,
+        authorId: 0,
+        authorName: "TalentRadar Bot",
+        authorRole: "company",
+        authorAvatar: "https://i.pravatar.cc/100?img=31",
+        isBot: true,
+        type: "mensaje",
+        text: "[Auto] Tendencia semanal: sube la demanda de React + SQL en proyectos remotos de 2k-4k €.",
+        mediaType: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
+        comments: [],
+        createdAt: now(),
+      },
+      {
+        id: 4,
+        authorId: 0,
+        authorName: "PulseUX Bot",
+        authorRole: "developer",
+        authorAvatar: "https://i.pravatar.cc/100?img=15",
+        isBot: true,
+        type: "opinion",
+        text: "[Auto] Mejor práctica UX: valida formularios en tiempo real y reduce fricción en onboarding.",
+        mediaType: "video",
+        mediaUrl: "https://www.w3schools.com/html/movie.mp4",
+        comments: [],
+        createdAt: now(),
+      },
+      {
+        id: 5,
+        authorId: 0,
+        authorName: "MatchEngine Bot",
+        authorRole: "company",
+        authorAvatar: "https://i.pravatar.cc/100?img=52",
+        isBot: true,
+        type: "experiencia",
+        text: "[Auto] Caso de éxito: proyecto cerrado en 9 días tras filtrar por disponibilidad + portfolio público.",
+        mediaType: "",
+        mediaUrl: "",
+        comments: [],
+        createdAt: now(),
+      },
+      {
+        id: 6,
+        authorId: 0,
+        authorName: "HiringSignals Bot",
+        authorRole: "company",
+        authorAvatar: "https://i.pravatar.cc/100?img=61",
+        isBot: true,
+        type: "mensaje",
+        text: "[Auto] Alerta: aumentan ofertas full-time en frontend senior en Madrid y Barcelona.",
+        mediaType: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1521791136064-7986c2920216",
+        comments: [],
+        createdAt: now(),
+      },
+    ],
   };
 }
 
 function getDB() {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) return JSON.parse(raw);
+  if (raw) {
+    const parsed = ensureDBShape(JSON.parse(raw));
+    setDB(parsed);
+    return parsed;
+  }
   const initial = defaultDB();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(ensureDBShape(initial)));
   return initial;
 }
 
@@ -380,13 +554,16 @@ function switchView(view) {
 
   state.view = view;
   document.querySelectorAll(".view").forEach((section) => section.classList.remove("active"));
-  el(`#view-${view}`).classList.add("active");
+  const target = el(`#view-${view}`);
+  if (!target) return;
+  target.classList.add("active");
 
   document.querySelectorAll(".nav-link[data-view]").forEach((item) => {
     item.classList.toggle("active", item.dataset.view === view);
   });
 
   if (view === "dashboard") renderDashboard();
+  if (view === "feed") renderFeed();
   if (view === "public-profile") renderPublicProfile();
 }
 
@@ -701,6 +878,7 @@ function createTechFilters() {
 
 function matchExploreFilters() {
   const query = el("#exploreQuery").value.trim().toLowerCase();
+  const target = el("#exploreTarget").value;
   const level = el("#expLevel").value;
   const budgetMax = Number(el("#budgetRange").value || 0);
   const modality = el("#modality").value;
@@ -711,6 +889,13 @@ function matchExploreFilters() {
   const activeTech = Array.from(document.querySelectorAll(".tech-toggle.active")).map((node) => node.dataset.tech);
 
   const db = getDB();
+
+  const companies = db.users
+    .filter((user) => user.role === "company" && user.accountStatus === "active")
+    .filter((company) => {
+      const textBlob = `${company.name} ${company.industry || ""} ${company.location || ""}`.toLowerCase();
+      return query ? textBlob.includes(query) : true;
+    });
 
   const developers = db.users
     .filter((user) => user.role === "developer" && user.accountStatus === "active")
@@ -738,11 +923,38 @@ function matchExploreFilters() {
       return queryPass && budgetPass && modalityPass && typePass && techPass;
     });
 
-  return { developers, projects };
+  return {
+    companies: target === "developers" ? [] : companies,
+    developers: target === "companies" ? [] : developers,
+    projects,
+  };
 }
 
 function renderExplore() {
-  const { developers, projects } = matchExploreFilters();
+  const { companies, developers, projects } = matchExploreFilters();
+
+  el("#exploreCompanies").innerHTML = companies.length
+    ? companies
+        .map(
+          (company) => `
+        <article class="profile-card">
+          <div class="row">
+            <img class="avatar" src="${company.avatar}" alt="Logo de ${company.name}" />
+            <div>
+              <strong>${company.name}</strong>
+              <div class="muted">${company.industry || "Empresa"} · ${company.location || "Remoto"}</div>
+            </div>
+          </div>
+          <p class="muted">Tamaño: ${company.companySize || "No especificado"}</p>
+          <p>${company.bio || "Sin descripción pública."}</p>
+          <div class="actions-row">
+            <button class="btn ghost open-auth">Inicia sesión para contactar</button>
+          </div>
+        </article>
+      `
+        )
+        .join("")
+    : `<div class="empty-state"><p class="muted">No se encontraron empresas.</p></div>`;
 
   el("#exploreDevelopers").innerHTML = developers.length
     ? developers
@@ -806,6 +1018,161 @@ function renderExplore() {
   }
 }
 
+function matchFeedFilters() {
+  const db = getDB();
+  const query = String(el("#feedQuery")?.value || "").trim().toLowerCase();
+  const type = String(el("#feedTypeFilter")?.value || "");
+  const media = String(el("#feedMediaFilter")?.value || "");
+
+  return (db.explorePosts || [])
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .filter((post) => {
+      const author = userById(post.authorId, db);
+      const authorName = post.authorName || author?.name || "";
+      const authorRole = post.authorRole || author?.role || "";
+      const textBlob = `${post.text || ""} ${post.type || ""} ${authorName} ${authorRole}`.toLowerCase();
+      const passQuery = query ? textBlob.includes(query) : true;
+      const passType = type ? post.type === type : true;
+      const passMedia = media === "none"
+        ? !post.mediaType
+        : media
+          ? post.mediaType === media
+          : true;
+      return passQuery && passType && passMedia;
+    });
+}
+
+function renderFeed() {
+  const db = getDB();
+  const posts = matchFeedFilters();
+
+  el("#exploreFeed").innerHTML = posts.length
+    ? posts
+        .map((post) => {
+          const author = userById(post.authorId, db);
+          const authorName = post.authorName || author?.name || "Usuario";
+          const authorRole = post.authorRole || (author?.role === "company" ? "company" : "developer");
+          const authorAvatar = post.authorAvatar || author?.avatar || "https://i.pravatar.cc/100?img=9";
+          const media = post.mediaType === "image"
+            ? `<img class="feed-media" src="${post.mediaUrl}" alt="Publicación de ${authorName}" />`
+            : post.mediaType === "video"
+              ? `<video class="feed-media" src="${post.mediaUrl}" controls preload="metadata"></video>`
+              : "";
+
+          return `
+            <article class="feed-post">
+              <div class="row">
+                <img class="avatar" src="${authorAvatar}" alt="Avatar de ${authorName}" />
+                <div>
+                  <strong>${authorName}</strong>
+                  <div class="muted">${authorRole === "company" ? "Empresa" : "Desarrollador"} · ${new Date(post.createdAt).toLocaleDateString()}</div>
+                </div>
+                <span class="chip">${post.type}</span>
+                ${post.isBot ? `<span class="chip">🤖 Bot</span>` : ""}
+              </div>
+              <p>${post.text}</p>
+              ${media}
+              <div class="feed-comments">
+                ${(post.comments || [])
+                  .slice(-4)
+                  .map((comment) => {
+                    const commentUser = userById(comment.userId, db);
+                    return `<p><strong>${commentUser?.name || "Usuario"}:</strong> ${comment.text}</p>`;
+                  })
+                  .join("") || `<p class="muted">Sin comentarios todavía.</p>`}
+              </div>
+              <form class="comment-form" data-post="${post.id}">
+                <input name="comment" placeholder="Escribe un comentario" required />
+                <button class="btn ghost" type="submit">Comentar</button>
+              </form>
+            </article>
+          `;
+        })
+        .join("")
+    : `<div class="empty-state"><p class="muted">No hay publicaciones con estos filtros.</p></div>`;
+
+  const explorePostForm = el("#explorePostForm");
+  if (explorePostForm) {
+    explorePostForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.target).entries());
+      const db = getDB();
+      const session = getSession();
+
+      if (!session) {
+        openAuthModal("login");
+        showAlert("Inicia sesión para publicar en el feed", true);
+        return;
+      }
+
+      db.explorePosts.unshift({
+        id: uid(db.explorePosts),
+        authorId: session.id,
+        type: payload.type,
+        text: String(payload.text || "").trim(),
+        mediaType: payload.mediaType || "",
+        mediaUrl: String(payload.mediaUrl || "").trim(),
+        comments: [],
+        createdAt: now(),
+      });
+
+      setDB(db);
+      event.target.reset();
+      renderFeed();
+      showAlert("Publicación creada");
+    });
+  }
+
+  document.querySelectorAll(".comment-form").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const db = getDB();
+      const session = getSession();
+
+      if (!session) {
+        openAuthModal("login");
+        showAlert("Inicia sesión para comentar", true);
+        return;
+      }
+
+      const input = event.target.querySelector('input[name="comment"]');
+      const text = String(input?.value || "").trim();
+      if (!text) return;
+
+      const post = db.explorePosts.find((item) => item.id === Number(form.dataset.post));
+      if (!post) return;
+
+      post.comments = post.comments || [];
+      post.comments.push({
+        id: uid(post.comments),
+        userId: session.id,
+        text,
+        createdAt: now(),
+      });
+
+      setDB(db);
+      renderFeed();
+    });
+  });
+
+  const applyFeedFilters = el("#applyFeedFilters");
+  if (applyFeedFilters) {
+    applyFeedFilters.addEventListener("click", renderFeed);
+  }
+
+  const clearFeedFilters = el("#clearFeedFilters");
+  if (clearFeedFilters) {
+    clearFeedFilters.addEventListener("click", () => {
+      ["#feedQuery", "#feedTypeFilter", "#feedMediaFilter"].forEach((selector) => {
+        const node = el(selector);
+        if (node) node.value = "";
+      });
+      renderFeed();
+    });
+  }
+}
+
 function renderPublicProfile() {
   const db = getDB();
   const developer = db.users.find((user) => user.id === state.publicProfileId && user.role === "developer");
@@ -818,8 +1185,13 @@ function renderPublicProfile() {
 
   const reviews = db.reviews.filter((review) => review.toUserId === developer.id).slice(0, 5);
   const galleryPortfolio = developer.portfolio || [];
-  const devProjects = developer.devProjects || [];
+  const devProjects = (developer.devProjects || []).filter((project) => project.visibility !== "private");
   const avgRating = averageRatingForUser(developer.id, db) || developer.rating || 0;
+
+  if (developer.visibility === "private") {
+    container.innerHTML = `<div class="empty-state"><p class="muted">Este perfil es privado. Inicia sesión y solicita acceso al developer.</p></div>`;
+    return;
+  }
 
   container.innerHTML = `
     <div class="public-profile-header">
@@ -871,6 +1243,11 @@ function renderPublicProfile() {
               <div class="chips">${(project.tags || []).map((tag) => `<span class="chip">${tag}</span>`).join("")}</div>
               <h5>Archivos adjuntos</h5>
               <div class="chips">${(project.files || []).length ? (project.files || []).map((file) => `<span class="chip">${file.name}</span>`).join("") : "<span class='muted'>Sin archivos</span>"}</div>
+              <div class="actions-row">
+                ${(project.files || [])
+                  .map((file, index) => file.dataUrl ? `<button class="btn ghost download-public-file" data-project="${project.id}" data-file-index="${index}">Descargar ${file.name}</button>` : "")
+                  .join("")}
+              </div>
               <div class="public-files">${(project.files || [])
                 .filter((file) => file.preview)
                 .slice(0, 6)
@@ -901,14 +1278,33 @@ function renderPublicProfile() {
       openInfoModal(button.dataset.title, `<p>${button.dataset.desc || "Sin descripción"}</p>`);
     });
   });
+
+  document.querySelectorAll(".download-public-file").forEach((button) => {
+    button.addEventListener("click", () => {
+      const project = devProjects.find((item) => item.id === Number(button.dataset.project));
+      if (!project) return;
+      const file = (project.files || [])[Number(button.dataset.fileIndex)];
+      if (!file?.dataUrl) {
+        showAlert("Archivo no disponible para descarga", true);
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = file.dataUrl;
+      link.download = file.name || "archivo";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+  });
 }
 
 function initExploreEvents() {
   el("#applyExploreFilters").addEventListener("click", renderExplore);
   el("#clearExploreFilters").addEventListener("click", () => {
-    ["#exploreQuery", "#expLevel", "#budgetRange", "#modality", "#projectType", "#devLocation", "#availability", "#maxRate"].forEach((selector) => {
+    ["#exploreQuery", "#exploreTarget", "#expLevel", "#budgetRange", "#modality", "#projectType", "#devLocation", "#availability", "#maxRate"].forEach((selector) => {
       const node = el(selector);
-      if (node) node.value = "";
+      if (node) node.value = selector === "#exploreTarget" ? "all" : "";
     });
     document.querySelectorAll(".tech-toggle.active").forEach((button) => button.classList.remove("active"));
     renderExplore();
@@ -1171,6 +1567,10 @@ function renderDeveloperPortfolio(user) {
       <input name="name" placeholder="Nombre del proyecto" required />
       <input name="repoUrl" placeholder="URL repositorio (opcional)" />
       <input name="tags" placeholder="tags: react,sql,api" />
+      <select name="visibility">
+        <option value="public">Público</option>
+        <option value="private">Privado</option>
+      </select>
       <textarea name="description" placeholder="Descripción del proyecto" required></textarea>
       <input name="files" type="file" multiple />
       <button class="btn primary" type="submit">Crear proyecto portfolio</button>
@@ -1184,9 +1584,18 @@ function renderDeveloperPortfolio(user) {
             <article class="project-card">
               <strong>${project.name}</strong>
               <p>${project.description}</p>
+              <p><span class="chip">${project.visibility === "private" ? "Privado" : "Público"}</span></p>
               <p class="muted">${project.repoUrl ? `<a href="${project.repoUrl}" target="_blank" rel="noopener">Repositorio</a>` : "Sin repositorio enlazado"}</p>
               <div class="chips">${(project.tags || []).map((tag) => `<span class="chip">${tag}</span>`).join("")}</div>
               <div class="chips">${(project.files || []).map((file) => `<span class="chip">${file.name}</span>`).join("") || "<span class='muted'>Sin archivos</span>"}</div>
+              <div class="actions-row">
+                <button class="btn ghost toggle-project-visibility" data-project="${project.id}">${project.visibility === "private" ? "Hacer público" : "Hacer privado"}</button>
+                ${(project.files || [])
+                  .filter((file) => file.dataUrl)
+                  .slice(0, 2)
+                  .map((file, index) => `<button class="btn ghost download-own-file" data-project="${project.id}" data-file-index="${index}">Descargar ${file.name}</button>`)
+                  .join("")}
+              </div>
               ${(project.files || [])
                 .filter((file) => file.preview)
                 .slice(0, 3)
@@ -2025,8 +2434,17 @@ function registerDashboardEvents(user, db) {
       const attachments = [];
       for (const file of selectedFiles.slice(0, 8)) {
         let preview = "";
+        let dataUrl = "";
         if (file.type.startsWith("image/") && file.size <= 450000) {
           preview = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = () => reject(new Error("No se pudo leer archivo"));
+            reader.readAsDataURL(file);
+          }).catch(() => "");
+        }
+        if (file.size <= 2000000) {
+          dataUrl = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(String(reader.result || ""));
             reader.onerror = () => reject(new Error("No se pudo leer archivo"));
@@ -2038,6 +2456,7 @@ function registerDashboardEvents(user, db) {
           type: file.type,
           size: file.size,
           preview,
+          dataUrl,
         });
       }
 
@@ -2047,6 +2466,7 @@ function registerDashboardEvents(user, db) {
         name: payload.name,
         description: payload.description,
         repoUrl: payload.repoUrl || "",
+        visibility: payload.visibility || "public",
         tags: String(payload.tags || "").split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean),
         files: attachments,
         createdAt: now(),
@@ -2058,6 +2478,38 @@ function registerDashboardEvents(user, db) {
       showAlert("Proyecto de portfolio creado");
     });
   }
+
+  document.querySelectorAll(".toggle-project-visibility").forEach((button) => {
+    button.addEventListener("click", () => {
+      const me = userById(user.id, db);
+      const project = (me.devProjects || []).find((item) => item.id === Number(button.dataset.project));
+      if (!project) return;
+      project.visibility = project.visibility === "private" ? "public" : "private";
+      setDB(db);
+      renderDashboard();
+      showAlert(`Proyecto marcado como ${project.visibility === "private" ? "privado" : "público"}`);
+    });
+  });
+
+  document.querySelectorAll(".download-own-file").forEach((button) => {
+    button.addEventListener("click", () => {
+      const me = userById(user.id, db);
+      const project = (me.devProjects || []).find((item) => item.id === Number(button.dataset.project));
+      if (!project) return;
+      const file = (project.files || []).filter((item) => item.dataUrl)[Number(button.dataset.fileIndex)];
+      if (!file?.dataUrl) {
+        showAlert("Archivo no disponible para descarga", true);
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = file.dataUrl;
+      link.download = file.name || "archivo";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+  });
 
   document.querySelectorAll(".portfolio-item").forEach((button) => {
     button.addEventListener("click", () => {
@@ -2172,6 +2624,8 @@ function initGlobalEvents() {
 }
 
 function boot() {
+  applyBrandLogo();
+  initThemeToggle();
   initHeader();
   initAuth();
   initExploreEvents();
@@ -2179,6 +2633,7 @@ function boot() {
   initGlobalEvents();
   renderHome();
   renderExplore();
+  renderFeed();
   refreshAuthControls();
 
   const session = getSession();
