@@ -1,0 +1,41 @@
+{
+  "name": "webhub-activity-stats",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "webhub/activity",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "name": "Webhook Activity",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [180, 180]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "REEMPLAZAR_SHEET_ID",
+        "range": "Actividad!A:D",
+        "options": {}
+      },
+      "name": "Google Sheets Append",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [420, 180]
+    }
+  ],
+  "connections": {
+    "Webhook Activity": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Append",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

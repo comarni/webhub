@@ -1,0 +1,61 @@
+{
+  "name": "webhub-match-found",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "webhub/match-found",
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "name": "Webhook Match",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [180, 260]
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const recs = item.json.matchData.recommendations || [];\n  item.json.summary = recs.map(r => `${r.name} (score ${r.score})`).join(', ');\n  return item;\n});"
+      },
+      "name": "Build Summary",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [420, 260]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@webhub.com",
+        "toEmail": "matching@webhub.com",
+        "subject": "Nuevas coincidencias detectadas",
+        "text": "Coincidencias: {{$json[\"summary\"]}}"
+      },
+      "name": "Send Match Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [660, 260]
+    }
+  ],
+  "connections": {
+    "Webhook Match": {
+      "main": [
+        [
+          {
+            "node": "Build Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Match Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

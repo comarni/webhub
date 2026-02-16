@@ -1,0 +1,42 @@
+{
+  "name": "webhub-new-project-email",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "webhub/new-project",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook New Project",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@webhub.com",
+        "toEmail": "={{$json[\"project\"][\"company_id\"]}}",
+        "subject": "Nuevo proyecto publicado en WebHub",
+        "text": "Se publicó el proyecto: {{$json[\"project\"][\"title\"]}}"
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [440, 200]
+    }
+  ],
+  "connections": {
+    "Webhook New Project": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebHub - Empresas y Talento Web</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>WebHub</h1>
+      <nav>
+        <button data-view="explore" class="nav-btn active">Explorar</button>
+        <button data-view="login" class="nav-btn">Login</button>
+        <button data-view="register" class="nav-btn">Registro</button>
+        <button data-view="dashboard" class="nav-btn" id="dashboardBtn">Dashboard</button>
+        <button id="logoutBtn" class="nav-btn danger hidden">Salir</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section id="alerts"></section>
+
+      <section id="view-explore" class="view active">
+        <h2>Explorar talento y proyectos</h2>
+        <div class="grid two-col">
+          <article class="card">
+            <h3>Desarrolladores destacados</h3>
+            <div id="featuredDevelopers"></div>
+          </article>
+          <article class="card">
+            <h3>Proyectos publicados</h3>
+            <div id="publicProjects"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-login" class="view">
+        <h2>Iniciar sesión</h2>
+        <form id="loginForm" class="card form">
+          <label>Email<input type="email" name="email" required /></label>
+          <label>Contraseña<input type="password" name="password" required minlength="6" /></label>
+          <button type="submit">Entrar</button>
+        </form>
+
+        <form id="forgotForm" class="card form">
+          <h3>Recuperar contraseña</h3>
+          <label>Email<input type="email" name="email" required /></label>
+          <button type="submit">Generar token</button>
+        </form>
+
+        <form id="resetForm" class="card form">
+          <h3>Restablecer contraseña</h3>
+          <label>Token<input type="text" name="token" required /></label>
+          <label>Nueva contraseña<input type="password" name="newPassword" required minlength="6" /></label>
+          <button type="submit">Actualizar contraseña</button>
+        </form>
+      </section>
+
+      <section id="view-register" class="view">
+        <h2>Crear cuenta</h2>
+        <form id="registerForm" class="card form">
+          <label>Nombre<input type="text" name="name" required /></label>
+          <label>Email<input type="email" name="email" required /></label>
+          <label>Contraseña<input type="password" name="password" minlength="6" required /></label>
+          <label>Rol
+            <select name="role" required>
+              <option value="developer">Desarrollador/Diseñador</option>
+              <option value="company">Empresa</option>
+            </select>
+          </label>
+          <button type="submit">Registrarme</button>
+        </form>
+      </section>
+
+      <section id="view-dashboard" class="view">
+        <h2>Dashboard</h2>
+        <p id="welcomeText"></p>
+
+        <div id="developerDashboard" class="hidden">
+          <div class="grid two-col">
+            <article class="card">
+              <h3>Proyectos abiertos</h3>
+              <div id="developerProjectList"></div>
+            </article>
+            <article class="card">
+              <h3>Mis aplicaciones</h3>
+              <div id="developerApplications"></div>
+            </article>
+          </div>
+          <article class="card">
+            <h3>Gestión rápida de portfolio</h3>
+            <p>Usa API para agregar entradas en <strong>portfolio_items</strong> y actualizar tu perfil.</p>
+          </article>
+        </div>
+
+        <div id="companyDashboard" class="hidden">
+          <div class="grid two-col">
+            <article class="card">
+              <h3>Crear proyecto</h3>
+              <form id="createProjectForm" class="form">
+                <label>Título<input type="text" name="title" required /></label>
+                <label>Descripción<textarea name="description" required></textarea></label>
+                <label>Presupuesto<input type="number" name="budget" min="1" required /></label>
+                <label>Plazo<input type="date" name="deadline" required /></label>
+                <label>Tecnologías<input type="text" name="technologyStack" placeholder="javascript, ux, figma" /></label>
+                <button type="submit">Publicar proyecto</button>
+              </form>
+            </article>
+
+            <article class="card">
+              <h3>Buscar desarrolladores</h3>
+              <form id="searchDevForm" class="form inline-form">
+                <input type="text" name="skill" placeholder="Skill" />
+                <input type="number" name="minRating" min="1" max="5" placeholder="Rating mín." />
+                <input type="number" name="minExperience" min="0" placeholder="Años mín." />
+                <button type="submit">Buscar</button>
+              </form>
+              <div id="searchResults"></div>
+            </article>
+          </div>
+
+          <article class="card">
+            <h3>Mis proyectos</h3>
+            <div id="companyProjects"></div>
+          </article>
+        </div>
+
+        <article class="card">
+          <h3>Mensajería interna</h3>
+          <form id="messageForm" class="form inline-form">
+            <input type="number" name="receiverId" placeholder="ID destinatario" required />
+            <input type="text" name="content" placeholder="Mensaje" required />
+            <button type="submit">Enviar</button>
+          </form>
+          <form id="conversationForm" class="form inline-form">
+            <input type="number" name="otherUserId" placeholder="ID conversación" required />
+            <button type="submit">Ver conversación</button>
+          </form>
+          <div id="conversationResult"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/explore.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/app.js"></script>
+  </body>
+  </html>

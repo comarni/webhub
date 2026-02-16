@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebHub | Talento digital para empresas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="src/frontend/css/styles.css" />
+  </head>
+  <body>
+    <header class="header" id="top">
+      <div class="logo-group">
+        <div class="logo-dot" aria-hidden="true"></div>
+        <span class="logo-text">WebHub</span>
+      </div>
+
+      <form class="header-search" id="globalSearchForm" role="search">
+        <input id="globalSearchInput" type="search" placeholder="Busca talento, skills o proyectos" aria-label="Buscar" />
+      </form>
+
+      <button class="burger" id="burgerBtn" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav" id="mainNav">
+        <button class="nav-link active" data-view="home">Inicio</button>
+        <button class="nav-link" data-view="explore">Explorar</button>
+        <button class="nav-link" data-view="dashboard" id="dashboardNavBtn">Dashboard</button>
+        <button class="btn ghost hidden" id="notificationsBtn">Notificaciones <span id="notificationsCount" class="count-badge">0</span></button>
+        <button class="btn ghost" id="loginBtn">Iniciar sesión</button>
+        <button class="btn primary" id="registerBtn">Registrarse</button>
+        <button class="btn danger hidden" id="logoutBtn">Salir</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="alerts" class="alerts" aria-live="polite"></section>
+
+      <section class="view active" id="view-home">
+        <section class="hero container">
+          <div class="hero-content">
+            <p class="badge">Plataforma profesional de matching digital</p>
+            <h1>Conecta con el talento digital ideal para tu proyecto</h1>
+            <p>
+              Encuentra desarrolladores y diseñadores validados o publica tus proyectos para colaborar con equipos de alto nivel.
+            </p>
+            <div class="hero-actions">
+              <button class="btn primary btn-lg" id="heroCta">Comienza hoy</button>
+              <button class="btn ghost btn-lg" data-view-trigger="explore">Explorar perfiles</button>
+            </div>
+            <div class="kpis">
+              <article><strong id="kpiTalents">0</strong><span>Talentos activos</span></article>
+              <article><strong id="kpiProjects">0</strong><span>Proyectos publicados</span></article>
+              <article><strong id="kpiMatches">0</strong><span>Matches generados</span></article>
+            </div>
+          </div>
+          <div class="hero-card">
+            <h3>Flujo recomendado</h3>
+            <ol>
+              <li>Elige tu rol: desarrollador o empresa.</li>
+              <li>Configura tu perfil y objetivos.</li>
+              <li>Encuentra coincidencias y empieza a colaborar.</li>
+            </ol>
+            <div class="progress-wrap">
+              <label for="onboardingProgress">Progreso de onboarding</label>
+              <progress id="onboardingProgress" max="100" value="35"></progress>
+            </div>
+          </div>
+        </section>
+
+        <section class="container section">
+          <h2>Cómo funciona</h2>
+          <div class="grid cols-3">
+            <article class="card step-card">
+              <span class="step-number">1</span>
+              <h3>Registro inteligente</h3>
+              <p>Selecciona tu rol y completa un onboarding guiado con feedback en tiempo real.</p>
+            </article>
+            <article class="card step-card">
+              <span class="step-number">2</span>
+              <h3>Publica o encuentra</h3>
+              <p>Empresas publican proyectos y desarrolladores exploran oportunidades según skills.</p>
+            </article>
+            <article class="card step-card">
+              <span class="step-number">3</span>
+              <h3>Colabora y escala</h3>
+              <p>Conecta por chat, valida avances, gestiona pagos y deja valoraciones.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="container section">
+          <div class="section-head">
+            <h2>Perfiles de desarrolladores top</h2>
+            <button class="btn ghost" data-view-trigger="explore">Ver todos</button>
+          </div>
+          <div class="grid cols-3" id="homeTopDevelopers"></div>
+        </section>
+
+        <section class="container section">
+          <div class="section-head">
+            <h2>Proyectos en tendencia</h2>
+            <button class="btn ghost" data-view-trigger="explore">Ver proyectos</button>
+          </div>
+          <div class="grid cols-2" id="homeTrendingProjects"></div>
+        </section>
+
+        <section class="container section">
+          <h2>Confían en WebHub</h2>
+          <div class="logo-strip">
+            <span>NovaTech</span><span>PixelForge</span><span>CloudAxis</span><span>OrbitSoft</span><span>BluePeak</span>
+          </div>
+          <div class="grid cols-3" id="testimonials"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-explore">
+        <section class="container section">
+          <div class="section-head">
+            <h2>Exploración pública</h2>
+            <p class="muted">Filtra perfiles y proyectos sin registro. Inicia sesión para contactar.</p>
+          </div>
+
+          <div class="card filter-card">
+            <h3>Búsqueda avanzada</h3>
+            <div class="grid cols-4">
+              <div class="field">
+                <label for="exploreQuery">Buscar</label>
+                <input id="exploreQuery" type="text" list="suggestions" placeholder="Frontend, UX, dashboard..." />
+                <datalist id="suggestions"></datalist>
+              </div>
+              <div class="field">
+                <label for="expLevel">Experiencia</label>
+                <select id="expLevel">
+                  <option value="">Cualquiera</option>
+                  <option value="junior">Junior (0-2)</option>
+                  <option value="mid">Mid (3-5)</option>
+                  <option value="senior">Senior (+6)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="budgetRange">Presupuesto máximo</label>
+                <input id="budgetRange" type="number" min="0" placeholder="5000" />
+              </div>
+              <div class="field">
+                <label for="modality">Modalidad</label>
+                <select id="modality">
+                  <option value="">Todas</option>
+                  <option value="remoto">Remoto</option>
+                  <option value="presencial">Presencial</option>
+                  <option value="hibrido">Híbrido</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="projectType">Tipo de proyecto</label>
+                <select id="projectType">
+                  <option value="">Todos</option>
+                  <option value="Web App">Web App</option>
+                  <option value="Landing">Landing</option>
+                  <option value="E-commerce">E-commerce</option>
+                  <option value="Diseño UX/UI">Diseño UX/UI</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="devLocation">Ubicación talento</label>
+                <input id="devLocation" type="text" placeholder="Madrid, Barcelona..." />
+              </div>
+              <div class="field">
+                <label for="availability">Disponibilidad</label>
+                <select id="availability">
+                  <option value="">Cualquiera</option>
+                  <option value="full-time">Full-time</option>
+                  <option value="part-time">Part-time</option>
+                  <option value="freelance">Freelance</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="maxRate">Tarifa máxima (€ / h)</label>
+                <input id="maxRate" type="number" min="0" placeholder="60" />
+              </div>
+            </div>
+            <div class="tech-filters" id="techFilters"></div>
+            <div class="actions-row">
+              <button class="btn primary" id="applyExploreFilters">Aplicar filtros</button>
+              <button class="btn ghost" id="clearExploreFilters">Limpiar</button>
+            </div>
+          </div>
+
+          <div class="grid cols-2">
+            <article class="card">
+              <h3>Desarrolladores</h3>
+              <div id="exploreDevelopers"></div>
+            </article>
+            <article class="card">
+              <h3>Proyectos</h3>
+              <div id="exploreProjects"></div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-public-profile">
+        <section class="container section">
+          <div class="section-head">
+            <h2>Portfolio público del developer</h2>
+            <div class="actions-row">
+              <button class="btn ghost" id="backToExploreBtn">Volver a explorar</button>
+              <button class="btn primary open-auth">Inicia sesión para contactar</button>
+            </div>
+          </div>
+          <article class="card" id="publicProfileContent"></article>
+        </section>
+      </section>
+
+      <section class="view" id="view-dashboard">
+        <div class="dashboard container">
+          <aside class="sidebar card" id="sidebarMenu"></aside>
+
+          <section class="dashboard-main">
+            <header class="card dashboard-header">
+              <div>
+                <h2 id="dashboardTitle">Dashboard</h2>
+                <p id="dashboardSubtitle" class="muted"></p>
+              </div>
+              <div class="match-badge hidden" id="matchBadge">🎉 ¡Tienes un nuevo match!</div>
+            </header>
+
+            <section class="metrics grid cols-3" id="metrics"></section>
+            <section class="card quick-actions" id="quickActions"></section>
+            <section class="card" id="dashboardPanel"></section>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div>
+          <div class="logo-group muted-logo">
+            <div class="logo-dot" aria-hidden="true"></div>
+            <span class="logo-text">WebHub</span>
+          </div>
+          <p>Conectando empresas y talento digital con flujos claros y colaboración eficiente.</p>
+        </div>
+        <nav>
+          <a href="#top">Inicio</a>
+          <a href="#" data-view-trigger="explore">Explorar</a>
+          <a href="#" data-info="contacto">Contacto</a>
+          <a href="#" data-info="terminos">Términos</a>
+          <a href="#" data-info="privacidad">Privacidad</a>
+        </nav>
+        <div class="socials" aria-label="Redes sociales">
+          <span>𝕏</span><span>in</span><span>◯</span>
+        </div>
+      </div>
+    </footer>
+
+    <div class="modal hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="modal-card">
+        <button class="icon-btn" id="closeAuthModal" aria-label="Cerrar">✕</button>
+        <h2 id="authTitle">Accede a WebHub</h2>
+
+        <div class="role-switch" id="roleSwitch">
+          <button class="role-card active" data-role="developer">
+            <strong>Soy desarrollador</strong>
+            <span>Busco proyectos y clientes</span>
+          </button>
+          <button class="role-card" data-role="company">
+            <strong>Soy empresa</strong>
+            <span>Busco talento para contratar</span>
+          </button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-auth="login">Login</button>
+          <button class="tab" data-auth="register">Registro</button>
+        </div>
+
+        <form id="loginForm" class="form auth-form active" novalidate>
+          <div class="field">
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" name="email" type="email" required />
+            <small class="error"></small>
+          </div>
+          <div class="field">
+            <label for="loginPassword">Contraseña</label>
+            <input id="loginPassword" name="password" type="password" minlength="6" required />
+            <small class="error"></small>
+          </div>
+          <button class="btn primary" type="submit">Entrar</button>
+          <button class="link-btn" type="button" id="forgotPasswordBtn">¿Olvidaste tu contraseña?</button>
+        </form>
+
+        <form id="registerForm" class="form auth-form" novalidate>
+          <input type="hidden" name="role" id="selectedRole" value="developer" />
+          <div class="field">
+            <label for="registerName">Nombre</label>
+            <input id="registerName" name="name" type="text" minlength="2" required />
+            <small class="error"></small>
+          </div>
+          <div class="field">
+            <label for="registerEmail">Email</label>
+            <input id="registerEmail" name="email" type="email" required />
+            <small class="error"></small>
+          </div>
+          <div class="field">
+            <label for="registerPassword">Contraseña</label>
+            <input id="registerPassword" name="password" type="password" minlength="6" required />
+            <small class="error"></small>
+          </div>
+          <div class="field">
+            <label for="registerConfirmPassword">Repetir contraseña</label>
+            <input id="registerConfirmPassword" name="confirmPassword" type="password" minlength="6" required />
+            <small class="error"></small>
+          </div>
+          <button class="btn primary" type="submit">Crear cuenta</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+      <div class="modal-card modal-wide">
+        <button class="icon-btn" id="closeInfoModal" aria-label="Cerrar">✕</button>
+        <h2 id="infoModalTitle">Detalle</h2>
+        <div id="infoModalBody"></div>
+      </div>
+    </div>
+
+    <script src="src/frontend/js/app.js"></script>
+  </body>
+</html>
